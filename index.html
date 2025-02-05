@@ -1,51 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign up</title>
-    <link rel="stylesheet" href="style1.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Common Meeting Time</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body >
+<body>
+  <div class="container">
+    <h1>Find Common Meeting Time</h1>
     
-    <div class="entry"  >
-        <div class="header" >
-            
-            <div>
-            <h1 class="welcome">WELCOME TO crossRoads</h1>
-            </div>
-        </div>
-        
-  
-        <div class="middle" >
-            <div class="login-box" >
-                <p>Plan.Connect.Meet</p>
-            </div>
-            <div >
-                <p class="login-text" >Email</p>
-                <input class="input" type="text" placeholder="Email">
-            </div>
-            <div >
-                <p class="login-text" >Username</p>
-                <input class="input" type="text" placeholder="User Name">
-            </div>
-            <div >
-                <p class="login-text">Password</p>
-                <input class="input" type="password" placeholder="Password" >
-            </div>
-            <div class="login-date" >
-                <p class="login-text" >Birthday</p>
-                <input class="input" type="text" placeholder="dd-mm-yyyy">
-            </div>
-            <div class="continue" >
-                <button class="continue-button">CONTINUE</button>
-            </div>
-            <P class="login-text1" >OR</P>
-            <div >
-                <button class="google-button">Continue With Google</button>
-            </div>
-        </div>
+    <div id="user1-inputs">
+      <h2>User 1 Availability</h2>
+      <div class="input-section" id="user1-availability">
+        <label for="user1-date">Date:</label>
+        <input type="date" class="user1-date">
+        <label for="user1-start">Start Time:</label>
+        <input type="time" class="user1-start">
+        <label for="user1-end">End Time:</label>
+        <input type="time" class="user1-end">
+      </div>
+      <button onclick="addUser1Availability()">Add More Time Slots</button>
+      <h3>Current User 1 Slots</h3>
+      <ul id="user1-slot-list"></ul>
     </div>
-    <script src="script.js"></script>
+
+    <div id="user2-inputs">
+      <h2>User 2 Availability</h2>
+      <div class="input-section" id="user2-availability">
+        <label for="user2-date">Date:</label>
+        <input type="date" class="user2-date">
+        <label for="user2-start">Start Time:</label>
+        <input type="time" class="user2-start">
+        <label for="user2-end">End Time:</label>
+        <input type="time" class="user2-end">
+      </div>
+      <button onclick="addUser2Availability()">Add More Time Slots</button>
+      <h3>Current User 2 Slots</h3>
+      <ul id="user2-slot-list"></ul>
+    </div>
+
+    <button onclick="findMeetingTime()">Find Meeting Time</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
