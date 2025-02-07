@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:5500",  "http://127.0.0.1:5500"], // Allow the frontend to communicate with the backend
+    origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://127.0.0.1:5501"], // Allow the frontend to communicate with the backend
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
