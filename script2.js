@@ -14,15 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (!response.ok) {
                 if (data.message === "You signed up with Google. Set a password first.") {
-                  // Redirect to set-password.html with email as a query parameter
+                 
                   window.location.href = `set-password.html?email=${encodeURIComponent(email)}`;
                 } else {
-                  alert(data.message); // Show other errors
+                  alert(data.message); 
                 }
                 return;
               }
           
-              // Save token and redirect user to homepage or dashboard
               localStorage.setItem("token", data.token);
               window.location.href = "trial.html";
         } catch (error) {
