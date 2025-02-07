@@ -54,9 +54,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "You signed up with Google. Set a password first." });
     }
     
-    if (!user.password) {
-      return res.status(400).json({ message: "You signed up with Google. Set a password first." });
-    }
+    
     
 
     console.log("User found:", user);

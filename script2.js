@@ -30,7 +30,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.querySelector(".google-button").addEventListener("click", () => {
-        window.location.href = "http://localhost:5001/auth/google";
-    });
+    
 });
