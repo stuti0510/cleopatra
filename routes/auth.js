@@ -92,10 +92,10 @@ router.get(
 
 
       console.log("Google Authentication Successful! Redirecting with token...");
-      res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "Strict" });
+      res.cookie("token", token, { httpOnly: true, secure: false, sameSite: "Lax" });
 
 
-      res.redirect(`http://localhost:5500/trial.html?token=${token}`);
+      res.redirect("http://localhost:5002/trial.html");
     } catch (error) {
       console.error("error during googlr auth callback:",error);
       res.redirect("/?error=server_error");

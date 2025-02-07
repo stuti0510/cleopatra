@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://127.0.0.1:5501"], // Allow the frontend to communicate with the backend
+    origin: ["http://localhost:5500", "http://127.0.0.1:5500"],
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -36,6 +36,6 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use("/auth", authRoutes);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     
