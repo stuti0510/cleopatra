@@ -111,7 +111,7 @@ async function initMap() {
     console.log("Google Maps API loaded successfully.");
 
     map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 40.7128, lng: -74.0060 }, // Default: New York
+        center: { lat: 25.4358, lng: 81.8463 }, // Default: Prayagraj
         zoom: 8,
     });
 
@@ -154,7 +154,11 @@ function mapPreferenceToPlacesType(preference) {
         "playgrounds and parks": "park",
         "shopping complex": "shopping_mall",
         "couple spots": "park",
-        "temple": "church"
+        "temple": "temple",
+        "church": "church",
+        "mosque": "mosque",
+        "mall": "mall",
+        "school": "school"
     };
     return typeMapping[preference?.toLowerCase()] || 'restaurant';
 }
@@ -212,9 +216,7 @@ async function findMeetingSpots(loc1, loc2, preference) {
 function displayPlaces(results, midpoint) {
     const placesList = document.getElementById("places-list");
     placesList.innerHTML = ""; 
-
-    results.sort((a, b) => haversineDistance(midpoint, a.geometry.location) - haversineDistance(midpoint, b.geometry.location));
-
+    
     results.slice(0, 10).forEach(place => {
         addMarker(place.geometry.location, place.name, "green");
 
@@ -263,21 +265,6 @@ function addMarker(location, title, color) {
     } else {
         placeMarkers.push(marker);
     }
-}
-
-// Calculate Haversine distance (to sort places)
-function haversineDistance(coord1, coord2) {
-    const R = 6371; // Radius of the Earth in km
-    const dLat = (coord2.lat() - coord1.lat) * Math.PI / 180;
-    const dLon = (coord2.lng() - coord1.lng) * Math.PI / 180;
-    const lat1 = coord1.lat * Math.PI / 180;
-    const lat2 = coord2.lat() * Math.PI / 180;
-
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1) * Math.cos(lat2) *
-              Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
 }
 
     </script>
