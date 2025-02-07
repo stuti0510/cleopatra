@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="page3.css">
+    <link rel="stylesheet" href="page_3.css">
 </head>
 <body>
     <header class="fixed-header">
@@ -21,16 +21,31 @@
             <label for="dropdown-input">Tell us your preference:</label>
             <input list="options" id="dropdown-input" placeholder="Select an option...">
             <datalist id="options">
-            <option value="dinner place"></option>
-            <option value="playgrounds and parks"></option>
-            <option value="shopping complex"></option>
-            <option value="couple spots"></option>
-            <option value="temple"></option>
+                <option value="dinner place"></option>
+                <option value="playgrounds and parks"></option>
+                <option value="shopping complex"></option>
+                <option value="couple spots"></option>
+                <option value="temple"></option>
             </datalist>
             <div id="submit1">
-            <button type="submit" class="submit">Submit</button>
+                <button type="submit" class="submit" onclick="submitForm()">Submit</button>
             </div>
-
-            
         </div>
-        
+    </main>
+
+    <script>
+        function submitForm() {
+            const placeA = document.getElementById("placeA").value;
+            const placeB = document.getElementById("placeB").value;
+            const preference = document.getElementById("dropdown-input").value;
+
+            if (placeA && placeB && preference) {
+                // Redirect to results.html with query parameters
+                window.location.href = `results.html?placeA=${encodeURIComponent(placeA)}&placeB=${encodeURIComponent(placeB)}&preference=${encodeURIComponent(preference)}`;
+            } else {
+                alert("Please fill in all fields.");
+            }
+        }
+    </script>
+</body>
+</html>

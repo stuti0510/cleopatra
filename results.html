@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Spot Results</title>
+    <style>
+        #map {
+            height: 400px;
+            width: 62%;
+            border-radius: 20px;
+            border:5px solid rgb(53,3,3);
+        }
+        #map-parent{
+            display:flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+        #places-list {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            max-width: 1000px;
+            background: #f9f9f9;
+            border-radius: 25px;
+
+        }
+        .place-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            border-radius: 25px;
+        }
+        .place-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color:rgb(53,3,3);
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .place-button:hover {
+            background-color:rgb(81, 10, 10);
+        }
+        .main-header{
+            left:0px;
+            right:0px;
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            color:rgb(53,3,3);
+            top:0px;
+            font-family: fantasy;
+            font-size:xx-large;
+        }
+        body{
+            background-color: rgba(203, 128, 57, 0.589);
+            background-image:url(back4.jpeg);
+            background-size: 100% auto;
+           
+        }
+        .list{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .list-header{
+            font-family: fantasy;
+            color:rgb(53,3,3);
+            font-size: xx-large;
+            margin-bottom: 0;
+            font-weight: 200;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h2 class="header">Meeting Spots Between Two Locations</h2>
+    </div>
+    <div id="map-parent">
+        <div id="map"></div>
+    </div>
+    <div class="list">
+        <p class="list-header">Nearby Places:</p>
+        <div id="places-list"></div>
+    </div>
+
+    <script>
+        let map;
+let service;
+let userMarkers = [];
+let placeMarkers = [];
+
+// Parse URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const placeA = urlParams.get('placeA');
+const placeB = urlParams.get('placeB');
+const preference = urlParams.get('preference');
+
+// Function to initialize the map
+async function initMap() {
+    console.log("Google Maps API loaded successfully.");
+
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 40.7128, lng: -74.0060 }, // Default: New York
+        zoom: 8,
+    });
+
+    service = new google.maps.places.PlacesService(map);
+
+    await findMeetingSpots(placeA, placeB, preference);
+}
+
+// Get coordinates using Google Geocoding API
+async function getCoordinates(address) {
+    console.log("Fetching coordinates for:", address);
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=AIzaSyC4pta7jNUg_1--oKxFvOocIx73qX0QWKI`;
+    
+    try {
+        const response = await fetch(geocodeUrl);
+        const data = await response.json();
+
+        if (data.results.length === 0) {
+            alert("Invalid location: " + address);
+            return null;
+        }
+
+        console.log("Coordinates found:", data.results[0].geometry.location);
+        return data.results[0].geometry.location;
+    } catch (error) {
+        console.error("Error fetching coordinates:", error);
+        return null;
+    }
+}
+
+// Calculate midpoint between two coordinates
+function calculateMidpoint(lat1, lng1, lat2, lng2) {
+    return { lat: (lat1 + lat2) / 2, lng: (lng1 + lng2) / 2 };
+}
+
+// Map user preferences to Google Places API types
+function mapPreferenceToPlacesType(preference) {
+    const typeMapping = {
+        "dinner place": "restaurant",
+        "playgrounds and parks": "park",
+        "shopping complex": "shopping_mall",
+        "couple spots": "park",
+        "temple": "church"
+    };
+    return typeMapping[preference?.toLowerCase()] || 'restaurant';
+}
+
+// Find meeting spots based on preferences
+async function findMeetingSpots(loc1, loc2, preference) {
+    const coord1 = await getCoordinates(loc1);
+    const coord2 = await getCoordinates(loc2);
+    
+    if (!coord1 || !coord2) return;
+
+    const midpoint = calculateMidpoint(coord1.lat, coord1.lng, coord2.lat, coord2.lng);
+    console.log("Calculated Midpoint:", midpoint);
+
+    map.setCenter(midpoint);
+    map.setZoom(12);
+    
+    addMarker(coord1, "Person A", "blue");
+    addMarker(coord2, "Person B", "red");
+
+    const placesType = mapPreferenceToPlacesType(preference);
+    console.log("Searching for places of type:", placesType);
+
+    let radius = 5000; // Start with 5km search radius
+    let request = { location: midpoint, radius: radius, type: placesType };
+
+    service.nearbySearch(request, (results, status) => {
+        const placesList = document.getElementById("places-list");
+        placesList.innerHTML = "";
+
+        console.log("Places API Status:", status);
+        console.log("Results received:", results);
+
+        if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+            displayPlaces(results, midpoint);
+        } else {
+            console.warn("No places found within 5km, expanding search...");
+            placesList.innerHTML = "<p><strong>No exact matches. Suggesting places within 10km instead.</strong></p>";
+            
+            request.radius = 10000; // Expand to 10km
+            service.nearbySearch(request, (newResults, newStatus) => {
+                console.log("Expanded search results:", newResults);
+
+                if (newStatus === google.maps.places.PlacesServiceStatus.OK && newResults.length > 0) {
+                    displayPlaces(newResults, midpoint);
+                } else {
+                    placesList.innerHTML += "<p>No places found even in a 10km radius.</p>";
+                }
+            });
+        }
+    });
+}
+
+// Display places in the list
+function displayPlaces(results, midpoint) {
+    const placesList = document.getElementById("places-list");
+    placesList.innerHTML = ""; 
+
+    results.sort((a, b) => haversineDistance(midpoint, a.geometry.location) - haversineDistance(midpoint, b.geometry.location));
+
+    results.slice(0, 10).forEach(place => {
+        addMarker(place.geometry.location, place.name, "green");
+
+        const placeItem = document.createElement("div");
+        placeItem.classList.add("place-item");
+
+        const placeButton = document.createElement("button");
+        placeButton.classList.add("place-button");
+        placeButton.innerHTML = `
+            <strong>${place.name}</strong><br>
+            Address: ${place.vicinity} <br>
+            Rating: ⭐${place.rating || "No rating"}
+        `;
+        placeButton.onclick = () => {
+            window.open(`https://www.google.com/maps/place/?q=place_id:${place.place_id}`, "_blank");
+        };
+
+        placeItem.appendChild(placeButton);
+        placesList.appendChild(placeItem);
+    });
+
+    console.log("Displayed places:", placesList.innerHTML);
+}
+
+// Add a marker to the map
+function addMarker(location, title, color) {
+    console.log("Adding marker:", title, location);
+
+    let marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: title,
+        icon: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`
+    });
+
+    const infoWindow = new google.maps.InfoWindow({
+        content: `<strong>${title}</strong>`
+    });
+
+    marker.addListener("click", () => {
+        infoWindow.open(map, marker);
+    });
+
+    if (color === "blue" || color === "red") {
+        userMarkers.push(marker);
+    } else {
+        placeMarkers.push(marker);
+    }
+}
+
+// Calculate Haversine distance (to sort places)
+function haversineDistance(coord1, coord2) {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (coord2.lat() - coord1.lat) * Math.PI / 180;
+    const dLon = (coord2.lng() - coord1.lng) * Math.PI / 180;
+    const lat1 = coord1.lat * Math.PI / 180;
+    const lat2 = coord2.lat() * Math.PI / 180;
+
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4pta7jNUg_1--oKxFvOocIx73qX0QWKI&libraries=places&callback=initMap"></script>
+
+</body>
+</html>
+
