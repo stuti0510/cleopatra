@@ -185,3 +185,7 @@ function convertToTimeFormat(minutes) {
   const mins = minutes % 60;
   return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
+
+function redirect_to_page3(){
+  window.location.href = "page3.html";
+}
